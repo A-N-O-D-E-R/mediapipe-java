@@ -17,9 +17,11 @@ mediapipe:
     enabled: true
     min-detection-confidence: 0.5
   face-landmarker:
-    enabled: false
+    enabled: true
+    min-detection-confidence: 0.5
+    max-detection-confidence: 0.5
 
 logging:
   level:
     com.mediapipe.videoupload: INFO
-    io.github.mediapipe: INFO
+    io.github.mediapipe: DEBUG

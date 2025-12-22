@@ -12,6 +12,8 @@ import lombok.extern.slf4j.Slf4j;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 
 /**
@@ -23,6 +25,7 @@ public class FaceDetector implements AutoCloseable {
 
     private final PythonBridge pythonBridge;
     private final ObjectMapper objectMapper;
+    private final String modelName;
     private final float minDetectionConfidence;
     private boolean initialized = false;
 
@@ -50,6 +53,7 @@ public class FaceDetector implements AutoCloseable {
      */
     public FaceDetector(PythonBridge pythonBridge, float minDetectionConfidence) {
         this.pythonBridge = pythonBridge;
+        this.modelName="blaze_face_short_range.tflite";
         this.minDetectionConfidence = minDetectionConfidence;
         this.objectMapper = new ObjectMapper();
     }
@@ -73,6 +77,7 @@ public class FaceDetector implements AutoCloseable {
         Map<String, Object> command = new HashMap<>();
         command.put("action", "init_face_detector");
         command.put("minDetectionConfidence", minDetectionConfidence);
+        command.put("modelPath", Paths.get(System.getProperty("user.home"), ".mediapipe", "models","face_detection",modelName).toAbsolutePath().toString());
 
         JsonNode response = pythonBridge.sendCommand(command);
         if (!"success".equals(response.get("status").asText())) {
@@ -180,6 +185,50 @@ public class FaceDetector implements AutoCloseable {
             throw new DetectionException("Failed to parse face detection results", e);
         }
     }
+
+
+    // TODO: study the feasability of the concurent processing with python bridge
+    public Map<Integer, List<FaceDetection>> detectFaces(Path videoFile, int frameSkip){
+        try(VideoProcessorWrapper wrapper = new VideoProcessorWrapper(pythonBridge, videoFile)){
+            Map<Integer, List<FaceDetection>> faceDetectionsByFrame = new LinkedHashMap<>();
+            int processedFrames = 0;
+
+            for (int frameNumber = 0; frameNumber < wrapper.getTotalFrames(); frameNumber++) {
+                if (frameNumber % (frameSkip + 1) == 0) {
+                    try {
+                        List<FaceDetection> faces =  detectFacesInFrame(wrapper.getVideoId(), frameNumber);
+                        faceDetectionsByFrame.put(frameNumber, faces);
+                        processedFrames++;
+
+                        if (processedFrames % 10 == 0) {
+                            log.info("Processed {} frames out of {}", processedFrames, wrapper.getTotalFrames() / (frameSkip + 1));
+                        }
+                    } catch (Exception e) {
+                        log.error("Error processing frame {}: {}", frameNumber, e.getMessage());
+                        faceDetectionsByFrame.put(frameNumber, Collections.emptyList());
+                    }
+                }
+            }
+            return faceDetectionsByFrame;
+        }
+    }
+
+    private List<FaceDetection> detectFacesInFrame(UUID videoId, int frameNumber) {
+        Map<String, Object> command = new HashMap<>();
+        command.put("action", "detect_faces_in_frame");
+        command.put("videoId", videoId);
+        command.put("frameNumber", frameNumber);
+
+        JsonNode response = pythonBridge.sendCommand(command);
+
+        if (!"success".equals(response.get("status").asText())) {
+            throw new DetectionException("Failed to detect faces in frame: " + response.get("message").asText());
+        }
+
+        return parseFaceDetections(response);
+    }
+
+
 
     @Override
     public void close() {

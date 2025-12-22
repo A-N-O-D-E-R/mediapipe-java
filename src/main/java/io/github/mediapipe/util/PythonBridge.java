@@ -6,10 +6,15 @@ import io.github.mediapipe.exception.PythonRuntimeException;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.*;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -60,7 +65,8 @@ public class PythonBridge implements AutoCloseable {
         try {
             // Extract Python script from resources to temporary file
             extractPythonScript();
-
+            // Extract Models from resources to ~/.mediapipe
+            extractModelFolder();
             // Start Python process
             ProcessBuilder processBuilder = new ProcessBuilder(
                     pythonExecutable,
@@ -80,6 +86,10 @@ public class PythonBridge implements AutoCloseable {
             startErrorStreamReader();
 
             isRunning = true;
+            // add 
+            pythonProcess.onExit().thenAccept(p ->
+                log.error("Python process exited with code {}", p.exitValue())
+            );
 
             // Test the connection
             JsonNode response = sendCommand(Map.of("action", "ping"));
@@ -117,6 +127,58 @@ public class PythonBridge implements AutoCloseable {
         }
     }
 
+
+    /**
+     * Extract Models folder .
+     */
+    private void extractModelFolder() throws IOException {
+        String resourceFolder = "models";
+        Path targetDir = Paths.get(System.getProperty("user.home"), ".mediapipe", "models");
+
+        if (Files.exists(targetDir)) {
+            return; // already extracted
+        }
+
+        Files.createDirectories(targetDir);
+
+        // Works both in IDE and from a packaged JAR
+        URI uri;
+        try {
+            uri = Objects.requireNonNull(
+                    getClass().getClassLoader().getResource(resourceFolder)
+            ).toURI();
+        } catch (URISyntaxException e) {
+            throw new IOException("Invalid resource URI", e);
+        }
+
+        if ("jar".equals(uri.getScheme())) {
+            // Running from JAR
+            try (java.nio.file.FileSystem fs = FileSystems.newFileSystem(uri, Map.of())) {
+                Path jarPath = fs.getPath("/" + resourceFolder);
+                copyDirectory(jarPath, targetDir);
+            }
+        } else {
+            // Running from IDE
+            copyDirectory(Paths.get(uri), targetDir);
+        }
+    }
+
+    private void copyDirectory(Path source, Path target) throws IOException {
+        Files.walk(source).forEach(path -> {
+            try {
+                Path relative = source.relativize(path);
+                Path dest = target.resolve(relative.toString());
+
+                if (Files.isDirectory(path)) {
+                    Files.createDirectories(dest);
+                } else {
+                    Files.copy(path, dest, StandardCopyOption.REPLACE_EXISTING);
+                }
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
+        });
+    }
     /**
      * Start a thread to read and log error stream output.
      */

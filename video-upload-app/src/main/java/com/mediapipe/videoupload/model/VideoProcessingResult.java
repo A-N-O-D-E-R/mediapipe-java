@@ -1,6 +1,8 @@
 package com.mediapipe.videoupload.model;
 
 import io.github.mediapipe.model.FaceDetection;
+import io.github.mediapipe.model.Landmark;
+import io.github.mediapipe.model.FaceLandmarks;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -22,6 +24,7 @@ public class VideoProcessingResult {
     private double fps;
     private double durationSeconds;
     private Map<Integer, List<FaceDetection>> faceDetectionsByFrame;
+    private Map<Integer, List<FaceLandmarks>> landmarksByFrame;
     private VideoStats stats;
     private String status;
     private Long processingTimeMs;

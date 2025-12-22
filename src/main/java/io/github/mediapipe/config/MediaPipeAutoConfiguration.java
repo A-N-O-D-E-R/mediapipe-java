@@ -10,6 +10,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
+import org.springframework.core.annotation.Order;
 
 import jakarta.annotation.PreDestroy;
 
@@ -29,6 +30,7 @@ public class MediaPipeAutoConfiguration {
      */
     @Bean
     @ConditionalOnMissingBean
+    @Order(1)
     public PythonBridge pythonBridge(MediaPipeProperties properties) {
         log.info("Creating shared Python bridge with executable: {}", properties.getPythonExecutable());
         sharedPythonBridge = new PythonBridge(properties.getPythonExecutable());
