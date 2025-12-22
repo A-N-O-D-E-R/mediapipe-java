@@ -24,7 +24,7 @@ echo "API URL: $API_URL"
 echo ""
 
 curl -X POST "$API_URL" \
-  -F "video=@$VIDEO_FILE" \
+  -F "video=@$VIDEO_FILE;type=video/mp4" \
   -F "frameSkip=$FRAME_SKIP" \
   -H "Accept: application/json" \
   -w "\n\nHTTP Status: %{http_code}\n" \

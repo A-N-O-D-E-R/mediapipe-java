@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.mediapipe.exception.DetectionException;
 import io.github.mediapipe.model.BlendShape;
+import io.github.mediapipe.model.FaceDetection;
 import io.github.mediapipe.model.FaceLandmarks;
 import io.github.mediapipe.model.Landmark;
 import io.github.mediapipe.util.PythonBridge;
@@ -12,6 +13,8 @@ import lombok.extern.slf4j.Slf4j;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 
 /**
@@ -23,6 +26,7 @@ public class FaceLandmarker implements AutoCloseable {
 
     private final PythonBridge pythonBridge;
     private final ObjectMapper objectMapper;
+    private final String modelName;
     private final float minDetectionConfidence;
     private final float minTrackingConfidence;
     private boolean initialized = false;
@@ -53,6 +57,7 @@ public class FaceLandmarker implements AutoCloseable {
      */
     public FaceLandmarker(PythonBridge pythonBridge, float minDetectionConfidence, float minTrackingConfidence) {
         this.pythonBridge = pythonBridge;
+        this.modelName="face_landmarker_v2_with_blendshapes.task";
         this.minDetectionConfidence = minDetectionConfidence;
         this.minTrackingConfidence = minTrackingConfidence;
         this.objectMapper = new ObjectMapper();
@@ -76,6 +81,7 @@ public class FaceLandmarker implements AutoCloseable {
         // Initialize face landmarker in Python
         Map<String, Object> command = new HashMap<>();
         command.put("action", "init_face_landmarker");
+        command.put("modelPath", Paths.get(System.getProperty("user.home"), ".mediapipe", "models", "face_landmark", modelName).toAbsolutePath().toString());
         command.put("minDetectionConfidence", minDetectionConfidence);
         command.put("minTrackingConfidence", minTrackingConfidence);
 
@@ -133,8 +139,54 @@ public class FaceLandmarker implements AutoCloseable {
         return parseFaceLandmarks(response);
     }
 
+
+        // TODO: study the feasability of the concurent processing with python bridge
+    public Map<Integer, List<FaceLandmarks>> detectLandmarks(Path videoFile, int frameSkip){
+        if (!initialized) {
+            initialize();
+        }
+        try(VideoProcessorWrapper wrapper = new VideoProcessorWrapper(pythonBridge, videoFile)){
+            Map<Integer, List<FaceLandmarks>> landmarkByFrame = new LinkedHashMap<>();
+            int processedFrames = 0;
+
+            for (int frameNumber = 0; frameNumber < wrapper.getTotalFrames(); frameNumber++) {
+                if (frameNumber % (frameSkip + 1) == 0) {
+                    try {
+                        List<FaceLandmarks> landmarks =  detectLandmarksInFrame(wrapper.getVideoId(), frameNumber);
+                        landmarkByFrame.put(frameNumber, landmarks);
+                        processedFrames++;
+
+                        if (processedFrames % 10 == 0) {
+                            log.info("Processed {} frames out of {}", processedFrames, wrapper.getTotalFrames() / (frameSkip + 1));
+                        }
+                    } catch (Exception e) {
+                        log.error("Error processing frame {}: {}", frameNumber, e.getMessage());
+                        landmarkByFrame.put(frameNumber, Collections.emptyList());
+                    }
+                }
+            }
+            return landmarkByFrame;
+        }
+    }
+
+    private List<FaceLandmarks> detectLandmarksInFrame(UUID videoId, int frameNumber) {
+        Map<String, Object> command = new HashMap<>();
+        command.put("action", "detect_landmarks_in_frame");
+        command.put("videoId", videoId);
+        command.put("frameNumber", frameNumber);
+
+        JsonNode response = pythonBridge.sendCommand(command);
+
+        if (!"success".equals(response.get("status").asText())) {
+            throw new DetectionException("Failed to detect faces in frame: " + response.get("message").asText());
+        }
+
+        return parseFaceLandmarks(response);
+    }
+
     /**
-     * Parse face landmarks from JSON response.
+     * Parse face landmarks fro
+     * m JSON response.
      */
     private List<FaceLandmarks> parseFaceLandmarks(JsonNode response) {
         try {

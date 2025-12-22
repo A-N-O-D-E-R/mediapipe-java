@@ -8,7 +8,6 @@ RUN apt-get update && apt-get install -y \
     python3 \
     python3-pip \
     python3-venv \
-    libgl1-mesa-glx \
     libglib2.0-0 \
     && rm -rf /var/lib/apt/lists/*
 
@@ -26,17 +25,17 @@ RUN pip install --no-cache-dir \
 WORKDIR /app
 
 # Copy parent pom first and install the mediapipe-java-wrapper library
-COPY ../pom.xml /app/parent/pom.xml
-COPY ../src /app/parent/src
+COPY ./pom.xml /app/parent/pom.xml
+COPY ./src /app/parent/src
 WORKDIR /app/parent
 RUN mvn clean install -DskipTests
 
 # Now build the video upload app
 WORKDIR /app/video-upload
-COPY pom.xml .
+COPY video-upload-app/pom.xml .
 RUN mvn dependency:go-offline
 
-COPY src ./src
+COPY video-upload-app/src ./src
 RUN mvn clean package -DskipTests
 
 # Stage 2: Runtime stage
@@ -46,7 +45,6 @@ FROM eclipse-temurin:21-jre
 RUN apt-get update && apt-get install -y \
     python3 \
     python3-venv \
-    libgl1-mesa-glx \
     libglib2.0-0 \
     libgomp1 \
     && rm -rf /var/lib/apt/lists/*
