@@ -1,0 +1,25 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: video-upload-app
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 500MB
+      max-request-size: 500MB
+      file-size-threshold: 10MB
+
+mediapipe:
+  python-executable: python3
+  face-detection:
+    enabled: true
+    min-detection-confidence: 0.5
+  face-landmarker:
+    enabled: false
+
+logging:
+  level:
+    com.mediapipe.videoupload: INFO
+    io.github.mediapipe: INFO

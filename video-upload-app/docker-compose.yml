@@ -1,0 +1,52 @@
+version: '3.8'
+
+services:
+  video-upload-app:
+    build:
+      context: ..
+      dockerfile: video-upload-app/Dockerfile
+    container_name: mediapipe-video-upload
+    ports:
+      - "8080:8080"
+    environment:
+      # JVM Options
+      - JAVA_OPTS=-Xmx2g -Xms512m
+
+      # MediaPipe Configuration
+      - MEDIAPIPE_PYTHON_EXECUTABLE=/opt/venv/bin/python3
+      - MEDIAPIPE_FACE_DETECTION_ENABLED=true
+      - MEDIAPIPE_FACE_DETECTION_MIN_DETECTION_CONFIDENCE=0.5
+
+      # Spring Boot Configuration
+      - SPRING_SERVLET_MULTIPART_MAX_FILE_SIZE=500MB
+      - SPRING_SERVLET_MULTIPART_MAX_REQUEST_SIZE=500MB
+      - SERVER_PORT=8080
+
+      # Logging
+      - LOGGING_LEVEL_COM_MEDIAPIPE_VIDEOUPLOAD=INFO
+      - LOGGING_LEVEL_IO_GITHUB_MEDIAPIPE=INFO
+
+    volumes:
+      # Optional: Mount a directory for persistent storage of processing results
+      - ./data:/app/data
+      # Optional: Mount a directory for video uploads
+      - ./uploads:/app/uploads
+
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/api/video/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+    restart: unless-stopped
+
+    # Resource limits (adjust based on your needs)
+    deploy:
+      resources:
+        limits:
+          cpus: '4'
+          memory: 4G
+        reservations:
+          cpus: '2'
+          memory: 2G
