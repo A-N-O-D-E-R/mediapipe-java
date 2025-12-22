@@ -1,0 +1,15 @@
+# MediaPipe Configuration Example
+mediapipe:
+  # Path to Python executable (optional, defaults to "python3")
+  python-executable: python3
+
+  # Face Detection Configuration
+  face-detection:
+    enabled: true
+    min-detection-confidence: 0.5
+
+  # Face Landmarker Configuration
+  face-landmarker:
+    enabled: true
+    min-detection-confidence: 0.5
+    min-tracking-confidence: 0.5
