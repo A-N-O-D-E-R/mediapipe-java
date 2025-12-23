@@ -1,4 +1,7 @@
-# MediaPipe Java Wrapper
+MediaPipe Java Wrapper
+=========================
+---
+
 
 A Java wrapper library for Google MediaPipe with Spring Boot support, enabling easy face detection and face landmark detection in Java/Spring applications.
 

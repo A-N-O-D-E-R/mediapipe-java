@@ -1,0 +1,46 @@
+image: eclipse-temurin:21
+
+definitions:
+  caches:
+    mavenwrapper: .mvn/wrapper
+  steps:
+    - step: &BuildAndCheck
+        name: Build and check
+        caches:
+          - maven
+          - mavenwrapper
+        script:
+          - ./mvnw -B verify sonar:sonar -Dsonar.host.url=$SONAR_URL -Dsonar.login=$SONAR_TOKEN
+    - step: &GetTokenAWS
+        name: Get token AWS
+        image: zenika/terraform-aws-cli:release-8.0_terraform-1.6.5_awscli-2.14.5
+        trigger: manual
+        script:
+          - aws_auth=$(aws sts assume-role --role-arn $RUNNER_ROLE_PROD_NS --role-session-name AWSCLI-Session --region $PRD_NS_AWS_DEFAULT_REGION --query 'join(``, [`AWS_ACCESS_KEY_ID=`, Credentials.AccessKeyId, `,AWS_SECRET_ACCESS_KEY=`, Credentials.SecretAccessKey, `,AWS_SESSION_TOKEN=`, Credentials.SessionToken])' --output text)
+          - echo "export AWS_REGION=$PRD_NS_AWS_DEFAULT_REGION" > .ci-env
+          - echo "export ${aws_auth//,/ }" >> .ci-env
+        artifacts:
+          - .ci-env
+    - step: &UploadToRepository
+        name: Upload artifact to repository
+        caches:
+          - maven
+          - mavenwrapper
+        script:
+          - source .ci-env
+          - ./mvnw deploy -DskipTests=true -DaltDeploymentRepository=ats::s3://artifacts-maven-bucket/
+          - ./generate-badge.sh
+
+pipelines:
+  default:
+    - step: *BuildAndCheck
+    - step:
+        <<: *GetTokenAWS
+        runs-on:
+          - 'self.hosted'
+          - 'digital.factory.non.sensible'
+          - 'linux'
+    - step: *UploadToRepository
+  pull-requests:
+    '**':
+      - step: *BuildAndCheck
