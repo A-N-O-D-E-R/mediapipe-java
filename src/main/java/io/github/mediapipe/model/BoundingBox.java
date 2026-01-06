@@ -1,5 +1,7 @@
 package io.github.mediapipe.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -19,6 +21,7 @@ public class BoundingBox {
     /**
      * Get the right edge of the bounding box.
      */
+    @JsonIgnore
     public int getRight() {
         return x + width;
     }
@@ -26,6 +29,7 @@ public class BoundingBox {
     /**
      * Get the bottom edge of the bounding box.
      */
+    @JsonIgnore
     public int getBottom() {
         return y + height;
     }
@@ -33,6 +37,7 @@ public class BoundingBox {
     /**
      * Get the center X coordinate.
      */
+    @JsonIgnore
     public int getCenterX() {
         return x + width / 2;
     }
@@ -40,6 +45,7 @@ public class BoundingBox {
     /**
      * Get the center Y coordinate.
      */
+    @JsonIgnore
     public int getCenterY() {
         return y + height / 2;
     }
