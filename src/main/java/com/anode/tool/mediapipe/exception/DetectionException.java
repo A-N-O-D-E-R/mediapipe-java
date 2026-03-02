@@ -1,4 +1,4 @@
-package io.github.mediapipe.exception;
+package com.anode.tool.mediapipe.exception;
 
 /**
  * Exception thrown when face detection or landmark detection fails.

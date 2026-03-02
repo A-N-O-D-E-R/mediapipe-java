@@ -1,5 +1,5 @@
-import io.github.mediapipe.model.FaceDetection;
-import io.github.mediapipe.service.FaceDetector;
+import com.anode.tool.mediapipe.model.FaceDetection;
+import com.anode.tool.mediapipe.service.FaceDetector;
 
 import java.io.File;
 import java.util.List;

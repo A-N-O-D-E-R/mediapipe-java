@@ -10,7 +10,7 @@ definitions:
           - maven
           - mavenwrapper
         script:
-          - ./mvnw -B verify sonar:sonar -Dsonar.host.url=$SONAR_URL -Dsonar.login=$SONAR_TOKEN
+          - ./mvnw -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:RELEASE:sonar  -Dsonar.host.url=$SONAR_URL -Dsonar.login=$SONAR_TOKEN
     - step: &GetTokenAWS
         name: Get token AWS
         image: zenika/terraform-aws-cli:release-8.0_terraform-1.6.5_awscli-2.14.5
@@ -28,7 +28,7 @@ definitions:
           - mavenwrapper
         script:
           - source .ci-env
-          - ./mvnw deploy -DskipTests=true -DaltDeploymentRepository=ats::s3://artifacts-maven-bucket/
+          - ./mvnw deploy -DskipTests=true -DaltDeploymentRepository=ats::default::s3://artifacts-maven-bucket/
           - ./generate-badge.sh
 
 pipelines:

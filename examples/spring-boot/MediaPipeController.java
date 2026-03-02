@@ -1,7 +1,7 @@
-import io.github.mediapipe.model.FaceDetection;
-import io.github.mediapipe.model.FaceLandmarks;
-import io.github.mediapipe.service.FaceDetector;
-import io.github.mediapipe.service.FaceLandmarker;
+import com.anode.tool.mediapipe.model.FaceDetection;
+import com.anode.tool.mediapipe.model.FaceLandmarks;
+import com.anode.tool.mediapipe.service.FaceDetector;
+import com.anode.tool.mediapipe.service.FaceLandmarker;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;

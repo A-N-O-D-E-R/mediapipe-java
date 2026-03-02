@@ -1,4 +1,4 @@
-package io.github.mediapipe.exception;
+package com.anode.tool.mediapipe.exception;
 
 /**
  * Base exception for all MediaPipe-related errors.

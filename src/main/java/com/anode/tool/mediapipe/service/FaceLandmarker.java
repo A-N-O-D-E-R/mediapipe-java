@@ -1,13 +1,14 @@
-package io.github.mediapipe.service;
+package com.anode.tool.mediapipe.service;
 
+import com.anode.tool.mediapipe.exception.DetectionException;
+import com.anode.tool.mediapipe.model.BlendShape;
+import com.anode.tool.mediapipe.model.FaceDetection;
+import com.anode.tool.mediapipe.model.FaceLandmarks;
+import com.anode.tool.mediapipe.model.Landmark;
+import com.anode.tool.mediapipe.util.PythonBridge;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.github.mediapipe.exception.DetectionException;
-import io.github.mediapipe.model.BlendShape;
-import io.github.mediapipe.model.FaceDetection;
-import io.github.mediapipe.model.FaceLandmarks;
-import io.github.mediapipe.model.Landmark;
-import io.github.mediapipe.util.PythonBridge;
+
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
@@ -78,10 +79,15 @@ public class FaceLandmarker implements AutoCloseable {
             pythonBridge.start();
         }
 
+        String baseDir = System.getenv("MEDIAPIPE_HOME");
+        if (baseDir == null || baseDir.isBlank()) {
+            baseDir = System.getProperty("java.io.tmpdir");
+        }
+
         // Initialize face landmarker in Python
         Map<String, Object> command = new HashMap<>();
         command.put("action", "init_face_landmarker");
-        command.put("modelPath", Paths.get(System.getProperty("user.home"), ".mediapipe", "models", "face_landmark", modelName).toAbsolutePath().toString());
+        command.put("modelPath", Paths.get(baseDir, ".mediapipe", "models", "face_landmark", modelName).toAbsolutePath().toString());
         command.put("minDetectionConfidence", minDetectionConfidence);
         command.put("minTrackingConfidence", minTrackingConfidence);
 

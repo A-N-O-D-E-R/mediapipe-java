@@ -1,13 +1,12 @@
-package io.github.mediapipe.service;
+package com.anode.tool.mediapipe.service;
 
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import com.anode.tool.mediapipe.util.PythonBridge;
 import com.fasterxml.jackson.databind.JsonNode;
-
-import io.github.mediapipe.util.PythonBridge;
 
 public class VideoProcessorWrapper implements AutoCloseable {
     

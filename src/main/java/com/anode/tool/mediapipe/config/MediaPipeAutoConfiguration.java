@@ -1,8 +1,5 @@
-package io.github.mediapipe.config;
+package com.anode.tool.mediapipe.config;
 
-import io.github.mediapipe.service.FaceDetector;
-import io.github.mediapipe.service.FaceLandmarker;
-import io.github.mediapipe.util.PythonBridge;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -11,6 +8,10 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.annotation.Order;
+
+import com.anode.tool.mediapipe.service.FaceDetector;
+import com.anode.tool.mediapipe.service.FaceLandmarker;
+import com.anode.tool.mediapipe.util.PythonBridge;
 
 import jakarta.annotation.PreDestroy;
 

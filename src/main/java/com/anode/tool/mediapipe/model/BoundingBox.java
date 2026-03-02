@@ -1,4 +1,4 @@
-package io.github.mediapipe.model;
+package com.anode.tool.mediapipe.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 

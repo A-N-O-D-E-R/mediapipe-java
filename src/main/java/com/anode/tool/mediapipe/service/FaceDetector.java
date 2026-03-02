@@ -1,12 +1,13 @@
-package io.github.mediapipe.service;
+package com.anode.tool.mediapipe.service;
 
+import com.anode.tool.mediapipe.exception.DetectionException;
+import com.anode.tool.mediapipe.model.BoundingBox;
+import com.anode.tool.mediapipe.model.FaceDetection;
+import com.anode.tool.mediapipe.model.Keypoint;
+import com.anode.tool.mediapipe.util.PythonBridge;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.github.mediapipe.exception.DetectionException;
-import io.github.mediapipe.model.BoundingBox;
-import io.github.mediapipe.model.FaceDetection;
-import io.github.mediapipe.model.Keypoint;
-import io.github.mediapipe.util.PythonBridge;
+
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
@@ -73,11 +74,15 @@ public class FaceDetector implements AutoCloseable {
             pythonBridge.start();
         }
 
+        String baseDir = System.getenv("MEDIAPIPE_HOME");
+        if (baseDir == null || baseDir.isBlank()) {
+            baseDir = System.getProperty("java.io.tmpdir");
+        }
         // Initialize face detector in Python
         Map<String, Object> command = new HashMap<>();
         command.put("action", "init_face_detector");
         command.put("minDetectionConfidence", minDetectionConfidence);
-        command.put("modelPath", Paths.get(System.getProperty("user.home"), ".mediapipe", "models","face_detection",modelName).toAbsolutePath().toString());
+        command.put("modelPath", Paths.get(baseDir, ".mediapipe", "models","face_detection",modelName).toAbsolutePath().toString());
 
         JsonNode response = pythonBridge.sendCommand(command);
         if (!"success".equals(response.get("status").asText())) {

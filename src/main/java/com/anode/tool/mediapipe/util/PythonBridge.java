@@ -1,8 +1,9 @@
-package io.github.mediapipe.util;
+package com.anode.tool.mediapipe.util;
 
+import com.anode.tool.mediapipe.exception.PythonRuntimeException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.github.mediapipe.exception.PythonRuntimeException;
+
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.*;
@@ -133,7 +134,11 @@ public class PythonBridge implements AutoCloseable {
      */
     private void extractModelFolder() throws IOException {
         String resourceFolder = "models";
-        Path targetDir = Paths.get(System.getProperty("user.home"), ".mediapipe", "models");
+        String baseDir = System.getenv("MEDIAPIPE_HOME");
+        if (baseDir == null || baseDir.isBlank()) {
+            baseDir = System.getProperty("java.io.tmpdir");
+        }
+        Path targetDir = Paths.get(baseDir, ".mediapipe", "models");
 
         if (Files.exists(targetDir)) {
             return; // already extracted

@@ -1,5 +1,5 @@
-import io.github.mediapipe.model.FaceLandmarks;
-import io.github.mediapipe.service.FaceLandmarker;
+import com.anode.tool.mediapipe.model.FaceLandmarks;
+import com.anode.tool.mediapipe.service.FaceLandmarker;
 
 import java.io.File;
 import java.util.List;

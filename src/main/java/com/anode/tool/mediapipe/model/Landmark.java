@@ -1,4 +1,4 @@
-package io.github.mediapipe.model;
+package com.anode.tool.mediapipe.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

@@ -1,4 +1,4 @@
-package io.github.mediapipe.config;
+package com.anode.tool.mediapipe.config;
 
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
