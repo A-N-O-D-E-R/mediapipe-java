@@ -1,9 +1,6 @@
 MediaPipe Java Wrapper
 =========================
 ---
-![Latest release](https://bitbucket.org/dsidigital/vto-lib/downloads/latest_release.svg)
-[![Quality Gate Status](https://sonarqube.nebo.audioptic.fr/api/project_badges/measure?project=com.anode.tool.mediapipe%3Amediapipe-java-wrapper&metric=alert_status&token=sqb_a4f34ee5ec18dff177ec57a2c8d69411e2270f03)](https://sonarqube.nebo.audioptic.fr/dashboard?id=com.anode.tool.mediapipe%3Amediapipe-java-wrapper)
-
 A Java wrapper library for Google MediaPipe with Spring Boot support, enabling easy face detection and face landmark detection in Java/Spring applications.
 
 ## Features
