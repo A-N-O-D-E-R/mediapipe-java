@@ -155,6 +155,9 @@
                         <goals>
                             <goal>jar</goal>
                         </goals>
+                        <configuration>
+                            <classifier>sources</classifier>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
