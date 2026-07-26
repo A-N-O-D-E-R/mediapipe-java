@@ -1,22 +1,39 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.anode.tool</groupId>
-    <artifactId>mediapipe</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <groupId>io.github.a-n-o-d-e-r.mediapipe</groupId>
+    <artifactId>mediapipe-java-wrapper</artifactId>
+    <version>0.1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
-
-    <scm>
-        <connection>scm:git:https://bitbucket.org/dsidigital/vto-lib.git</connection>
-        <url>https://bitbucket.org/dsidigital/vto-lib</url>
-        <developerConnection>scm:git:https://bitbucket.org/dsidigital/vto-lib.git</developerConnection>
-        <tag>HEAD</tag>
-    </scm>
 
     <name>MediaPipe Java Wrapper</name>
     <description>Java wrapper library for Google MediaPipe with Spring Boot support</description>
 
+    <url>https://github.com/A-N-O-D-E-R/mediapipe-java</url>
+    <licenses>
+        <license>
+            <name>MIT License</name>
+            <url>https://opensource.org/licenses/MIT</url>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <id>A-N-O-D-E-R</id>
+            <name>A-N-O-D-E-R</name>
+            <url>https://github.com/A-N-O-D-E-R</url>
+        </developer>
+    </developers>
+
+    <scm>
+        <connection>scm:git:git://github.com/A-N-O-D-E-R/mediapipe-java.git</connection>
+        <developerConnection>scm:git:ssh://github.com/A-N-O-D-E-R/mediapipe-java.git</developerConnection>
+        <url>https://github.com/A-N-O-D-E-R/mediapipe-java</url>
+        <tag>HEAD</tag>
+    </scm>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>21</maven.compiler.source>
@@ -179,4 +196,68 @@
             </plugin>
         </plugins>
     </build>
+    <profiles>
+        <!-- Maven Central release profile -->
+        <profile>
+            <id>central</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-source-plugin</artifactId>
+                        <version>3.3.1</version>
+                        <executions>
+                            <execution>
+                                <id>attach-sources</id>
+                                <goals><goal>jar-no-fork</goal></goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <version>3.6.3</version>
+                        <executions>
+                            <execution>
+                                <id>attach-javadocs</id>
+                                <goals><goal>jar</goal></goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>3.2.4</version>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals><goal>sign</goal></goals>
+                                <configuration>
+                                    <gpgArguments>
+                                        <arg>--pinentry-mode</arg>
+                                        <arg>loopback</arg>
+                                    </gpgArguments>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                    <plugin>
+                        <groupId>org.sonatype.central</groupId>
+                        <artifactId>central-publishing-maven-plugin</artifactId>
+                        <version>0.11.0</version>
+                        <extensions>true</extensions>
+                        <configuration>
+                            <publishingServerId>central</publishingServerId>
+                            <autoPublish>true</autoPublish>
+                            <waitUntil>published</waitUntil>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>
